@@ -1,0 +1,385 @@
+<div class="dashboard-container">
+  
+  <!-- 1. USER DETAILS HERO CARD -->
+  <section class="user-hero-card" *ngIf="currentUser">
+    <div class="user-profile-left">
+      <div class="profile-avatar" [class.avatar-admin]="isAdmin">
+        {{ currentUser.name.charAt(0).toUpperCase() }}
+      </div>
+      <div class="profile-info">
+        <div class="profile-title-row">
+          <h2>{{ currentUser.name }}</h2>
+          <span class="role-pill" [class.role-admin]="isAdmin" [class.role-general]="!isAdmin">
+            <svg *ngIf="isAdmin" viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+              <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+            </svg>
+            {{ currentUser.role }}
+          </span>
+        </div>
+        <p class="profile-sub">{{ currentUser.department }} &bull; <span class="text-mono">{{ currentUser.email }}</span></p>
+      </div>
+    </div>
+
+    <div class="user-profile-stats">
+      <div class="stat-box">
+        <span class="stat-label">System User ID</span>
+        <span class="stat-value text-mono">{{ currentUser.userId }}</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">Access Level</span>
+        <span class="stat-value" [class.text-accent-admin]="isAdmin">
+          {{ isAdmin ? 'Tier 1 (Unrestricted)' : 'Tier 2 (General)' }}
+        </span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">Session Status</span>
+        <span class="stat-value status-active">
+          <span class="pulse-dot"></span> Active
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. ASYNC PROCESSING & LATENCY SIMULATOR BAR -->
+  <section class="latency-control-panel">
+    <div class="panel-left">
+      <div class="latency-icon">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+      </div>
+      <div class="latency-info">
+        <h4>Simulate API Latency (Async Processing Parameter)</h4>
+        <p>Demonstrates asynchronous handling using RxJS Observables and the <code>?delay={{ selectedDelayMs }}ms</code> backend query parameter.</p>
+      </div>
+    </div>
+
+    <div class="panel-controls">
+      <div class="preset-group">
+        <button type="button" class="btn-delay-preset" [class.active]="selectedDelayMs === 0" (click)="setDelayPreset(0)">0ms</button>
+        <button type="button" class="btn-delay-preset" [class.active]="selectedDelayMs === 800" (click)="setDelayPreset(800)">800ms</button>
+        <button type="button" class="btn-delay-preset" [class.active]="selectedDelayMs === 1500" (click)="setDelayPreset(1500)">1500ms</button>
+        <button type="button" class="btn-delay-preset" [class.active]="selectedDelayMs === 3000" (click)="setDelayPreset(3000)">3000ms</button>
+      </div>
+
+      <button (click)="fetchRecords()" class="btn-reload" [disabled]="isRecordsLoading">
+        <svg [class.spin]="isRecordsLoading" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+        </svg>
+        <span>{{ isRecordsLoading ? 'Loading async...' : 'Execute API Call' }}</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ASYNC STATUS METER (VISIBLE DURING & AFTER ASYNC LOAD) -->
+  <div class="async-meter-bar" *ngIf="isRecordsLoading || lastResponseDurationMs !== null">
+    <div class="meter-content" *ngIf="isRecordsLoading">
+      <div class="live-ticker">
+        <span class="ticker-pulse"></span>
+        <span class="ticker-text">Observable In-Flight: Simulating non-blocking cloud latency... <strong>{{ elapsedTimeMs }}ms elapsed</strong></span>
+      </div>
+      <div class="loading-progress-line"></div>
+    </div>
+
+    <div class="meter-resolved" *ngIf="!isRecordsLoading && lastResponseDurationMs !== null">
+      <span class="badge-resolved">✓ Async Completed</span>
+      <span class="resolved-text">Records streamed via RxJS Observable in <strong>{{ lastResponseDurationMs }}ms</strong> (simulated parameter delay: <code>{{ selectedDelayMs }}ms</code>)</span>
+    </div>
+  </div>
+
+  <!-- 3. NAVIGATION TABS FOR ADMIN (Records vs User Management) -->
+  <div class="section-tabs" *ngIf="isAdmin">
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'records'" 
+      (click)="activeTab = 'records'">
+      <span>Candidate Verification Records</span>
+      <span class="tab-count">{{ records.length }}</span>
+    </button>
+
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'users'" 
+      (click)="activeTab = 'users'">
+      <span>Manage Database Users (Admin CRUD)</span>
+      <span class="tab-count count-admin">{{ dbUsers.length }}</span>
+    </button>
+  </div>
+
+  <!-- 4. TAB 1: CANDIDATE VERIFICATION RECORDS -->
+  <section class="content-card" *ngIf="activeTab === 'records'">
+    <div class="card-header">
+      <div class="header-left">
+        <h3>Verification Records</h3>
+        <p class="header-subtitle">
+          Displaying records based on access role: 
+          <span class="badge-role-tag" [class.admin]="isAdmin">{{ currentUser?.role }}</span>
+          <span class="access-explainer" *ngIf="!isAdmin">
+            (General users can view standard checks; sensitive risk matrices are restricted)
+          </span>
+          <span class="access-explainer" *ngIf="isAdmin">
+            (Full administrative visibility including confidential risk scores and audit details)
+          </span>
+        </p>
+      </div>
+
+      <div class="header-filters">
+        <div class="search-input-wrapper">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input 
+            type="text" 
+            [(ngModel)]="recordsSearchTerm" 
+            (ngModelChange)="onSearchChange()" 
+            placeholder="Search candidate, role, type..." />
+        </div>
+
+        <select [(ngModel)]="recordsFilterStatus" (ngModelChange)="onFilterStatusChange($event)" class="status-select">
+          <option value="ALL">All Statuses</option>
+          <option value="Verified">Verified</option>
+          <option value="Pending Review">Pending Review</option>
+          <option value="Discrepancy Found">Discrepancy Found</option>
+          <option value="In Progress">In Progress</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- SKELETON LOADER WHEN ASYNC IS IN-FLIGHT -->
+    <div class="table-skeleton" *ngIf="isRecordsLoading">
+      <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5]">
+        <div class="skeleton-bar bar-small"></div>
+        <div class="skeleton-bar bar-medium"></div>
+        <div class="skeleton-bar bar-medium"></div>
+        <div class="skeleton-bar bar-small"></div>
+        <div class="skeleton-bar bar-pill"></div>
+      </div>
+    </div>
+
+    <!-- ACTUAL DATA TABLE -->
+    <div class="table-responsive" *ngIf="!isRecordsLoading">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Record ID</th>
+            <th>Candidate &amp; Target Role</th>
+            <th>Verification Type</th>
+            <th>Submitted By</th>
+            <th>Status</th>
+            <th>Risk Assessment</th>
+            <th>Blockchain Hash</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let rec of filteredRecords" [class.highlight-row]="rec.riskLevel === 'High'">
+            <td class="text-mono record-id-cell">
+              <span class="record-id">{{ rec.id }}</span>
+            </td>
+            <td>
+              <div class="candidate-cell">
+                <span class="candidate-name">{{ rec.candidateName }}</span>
+                <span class="candidate-role">{{ rec.candidateRole }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="verification-badge">{{ rec.verificationType }}</span>
+            </td>
+            <td>
+              <span class="submitted-by-tag">&#64;{{ rec.submittedBy }}</span>
+            </td>
+            <td>
+              <span class="status-badge" 
+                [class.status-verified]="rec.status === 'Verified'"
+                [class.status-pending]="rec.status === 'Pending Review'"
+                [class.status-discrepancy]="rec.status === 'Discrepancy Found'"
+                [class.status-progress]="rec.status === 'In Progress'">
+                {{ rec.status }}
+              </span>
+            </td>
+            <td>
+              <!-- Access level differentiation: Restricted for general users unless their own -->
+              <span *ngIf="rec.riskLevel === 'Restricted'" class="risk-restricted">
+                🔒 Restricted
+              </span>
+              <span *ngIf="rec.riskLevel !== 'Restricted'" class="risk-badge"
+                [class.risk-low]="rec.riskLevel === 'Low'"
+                [class.risk-medium]="rec.riskLevel === 'Medium'"
+                [class.risk-high]="rec.riskLevel === 'High'">
+                {{ rec.riskLevel }} Risk
+              </span>
+            </td>
+            <td>
+              <div class="hash-cell" title="{{ rec.blockchainHash }}">
+                <span class="hash-icon">⬡</span>
+                <span class="hash-text text-mono">{{ rec.blockchainHash | slice:0:10 }}...</span>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="filteredRecords.length === 0">
+            <td colspan="7" class="empty-state">
+              <p>No verification records found matching your filter criteria.</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 5. TAB 2: ADMIN USER MANAGEMENT (Visible to Admin only) -->
+  <section class="content-card" *ngIf="isAdmin && activeTab === 'users'">
+    <div class="card-header">
+      <div class="header-left">
+        <h3>Database User Management</h3>
+        <p class="header-subtitle">Direct read and write synchronization with XML Database (<code>backend/data/database.xml</code>)</p>
+      </div>
+
+      <button (click)="openAddUserModal()" class="btn-primary-add">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        <span>Add New User</span>
+      </button>
+    </div>
+
+    <!-- Skeleton Loader for Users -->
+    <div class="table-skeleton" *ngIf="isUsersLoading">
+      <div class="skeleton-row" *ngFor="let i of [1,2,3,4]">
+        <div class="skeleton-bar bar-small"></div>
+        <div class="skeleton-bar bar-medium"></div>
+        <div class="skeleton-bar bar-medium"></div>
+        <div class="skeleton-bar bar-small"></div>
+      </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="table-responsive" *ngIf="!isUsersLoading">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>System ID</th>
+            <th>User Credentials</th>
+            <th>Full Name &amp; Email</th>
+            <th>Role</th>
+            <th>Department</th>
+            <th>Status</th>
+            <th class="text-right">Admin Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let u of dbUsers">
+            <td class="text-mono">{{ u.id }}</td>
+            <td>
+              <span class="user-id-code text-mono">&#64;{{ u.userId }}</span>
+            </td>
+            <td>
+              <div class="user-table-cell">
+                <strong>{{ u.name }}</strong>
+                <span class="user-table-email">{{ u.email }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="role-pill-sm" [class.pill-admin]="u.role === 'Admin'" [class.pill-general]="u.role === 'General User'">
+                {{ u.role }}
+              </span>
+            </td>
+            <td>{{ u.department }}</td>
+            <td>
+              <button 
+                class="status-toggle-btn" 
+                [class.active]="u.status === 'Active'" 
+                (click)="toggleUserStatus(u)"
+                title="Click to toggle active/inactive status">
+                {{ u.status }}
+              </button>
+            </td>
+            <td class="text-right">
+              <div class="action-buttons">
+                <button (click)="openEditUserModal(u)" class="btn-action edit" title="Edit User">
+                  Edit
+                </button>
+                <button (click)="onDeleteUser(u)" class="btn-action delete" title="Delete User">
+                  Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+
+<!-- USER CREATE / EDIT MODAL -->
+<div class="modal-backdrop" *ngIf="showUserModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h4>{{ isEditingUser ? 'Edit Database User' : 'Register New User in XML DB' }}</h4>
+      <button class="btn-close" (click)="closeUserModal()">&times;</button>
+    </div>
+
+    <form [formGroup]="userForm" (ngSubmit)="onSaveUser()" class="modal-body" novalidate>
+      <div class="modal-grid">
+        <!-- User ID -->
+        <div class="modal-field">
+          <label>User ID (Login Username) <span class="required">*</span></label>
+          <input type="text" formControlName="userId" [readonly]="isEditingUser" placeholder="e.g. jdoe" />
+          <span class="field-error" *ngIf="userForm.get('userId')?.touched && userForm.get('userId')?.invalid">Required</span>
+        </div>
+
+        <!-- Full Name -->
+        <div class="modal-field">
+          <label>Full Name <span class="required">*</span></label>
+          <input type="text" formControlName="name" placeholder="e.g. John Doe" />
+          <span class="field-error" *ngIf="userForm.get('name')?.touched && userForm.get('name')?.invalid">Required</span>
+        </div>
+
+        <!-- Email -->
+        <div class="modal-field">
+          <label>Email Address <span class="required">*</span></label>
+          <input type="email" formControlName="email" placeholder="john@mploychek.com" />
+          <span class="field-error" *ngIf="userForm.get('email')?.touched && userForm.get('email')?.invalid">Valid email required</span>
+        </div>
+
+        <!-- Password (if new user) -->
+        <div class="modal-field" *ngIf="!isEditingUser">
+          <label>Temporary Password <span class="required">*</span></label>
+          <input type="password" formControlName="password" placeholder="Min 4 characters" />
+        </div>
+
+        <!-- Role -->
+        <div class="modal-field">
+          <label>User Role <span class="required">*</span></label>
+          <select formControlName="role">
+            <option value="General User">General User</option>
+            <option value="Admin">Admin</option>
+          </select>
+        </div>
+
+        <!-- Department -->
+        <div class="modal-field">
+          <label>Department <span class="required">*</span></label>
+          <input type="text" formControlName="department" placeholder="e.g. Verification Operations" />
+        </div>
+
+        <!-- Status -->
+        <div class="modal-field">
+          <label>Account Status</label>
+          <select formControlName="status">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="closeUserModal()">Cancel</button>
+        <button type="submit" class="btn-save">{{ isEditingUser ? 'Update User' : 'Save User to DB' }}</button>
+      </div>
+    </form>
+  </div>
+</div>

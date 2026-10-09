@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database>
+  <users>
+    <user>
+      <id>USR-001</id>
+      <userId>admin</userId>
+      <password>admin123</password>
+      <name>Giri Venkataramanan</name>
+      <email>giri.cto@mploychek.com</email>
+      <role>Admin</role>
+      <department>Technology &amp; Security</department>
+      <status>Active</status>
+      <createdAt>2026-01-15T09:00:00Z</createdAt>
+    </user>
+    <user>
+      <id>USR-002</id>
+      <userId>aswin</userId>
+      <password>user123</password>
+      <name>Aswin Bose</name>
+      <email>aswin.bose@mploychek.com</email>
+      <role>General User</role>
+      <department>Recruitment Verification</department>
+      <status>Active</status>
+      <createdAt>2026-02-10T10:30:00Z</createdAt>
+    </user>
+    <user>
+      <id>USR-003</id>
+      <userId>sarah</userId>
+      <password>user123</password>
+      <name>Sarah Jenkins</name>
+      <email>sarah.jenkins@mploychek.com</email>
+      <role>General User</role>
+      <department>Operations &amp; Compliance</department>
+      <status>Active</status>
+      <createdAt>2026-02-18T14:15:00Z</createdAt>
+    </user>
+    <user>
+      <id>USR-004</id>
+      <userId>admin2</userId>
+      <password>admin123</password>
+      <name>Arvind R A</name>
+      <email>arvind.ceo@mploychek.com</email>
+      <role>Admin</role>
+      <department>Executive Management</department>
+      <status>Active</status>
+      <createdAt>2026-01-10T08:00:00Z</createdAt>
+    </user>
+  </users>
+  <records>
+    <record>
+      <id>CHK-9041</id>
+      <candidateName>Rohan Sharma</candidateName>
+      <candidateRole>Senior Cloud Engineer</candidateRole>
+      <verificationType>Employment (EPFO)</verificationType>
+      <submittedBy>aswin</submittedBy>
+      <status>Verified</status>
+      <riskLevel>Low</riskLevel>
+      <accessLevel>General</accessLevel>
+      <blockchainHash>0x8f3c7a21be84e9021d9b3a</blockchainHash>
+      <dateInitiated>2026-03-15</dateInitiated>
+      <notes>Past 5 years service history verified via EPFO portal direct API.</notes>
+    </record>
+    <record>
+      <id>CHK-9042</id>
+      <candidateName>Priya Nair</candidateName>
+      <candidateRole>Full Stack Developer</candidateRole>
+      <verificationType>Education Credential</verificationType>
+      <submittedBy>aswin</submittedBy>
+      <status>Verified</status>
+      <riskLevel>Low</riskLevel>
+      <accessLevel>General</accessLevel>
+      <blockchainHash>0x12d59ae077b9412cf847bc</blockchainHash>
+      <dateInitiated>2026-03-18</dateInitiated>
+      <notes>B.Tech Degree confirmed directly with Anna University database.</notes>
+    </record>
+    <record>
+      <id>CHK-9043</id>
+      <candidateName>Vikram Patel</candidateName>
+      <candidateRole>DevOps Specialist</candidateRole>
+      <verificationType>Criminal Check (E-Courts)</verificationType>
+      <submittedBy>aswin</submittedBy>
+      <status>Pending Review</status>
+      <riskLevel>Medium</riskLevel>
+      <accessLevel>General</accessLevel>
+      <blockchainHash>0x45a1c9ef0021bca9810f22</blockchainHash>
+      <dateInitiated>2026-03-24</dateInitiated>
+      <notes>Awaiting district court automated jurisdiction clearance reply.</notes>
+    </record>
+    <record>
+      <id>CHK-9044</id>
+      <candidateName>Ananya Rao</candidateName>
+      <candidateRole>Product Manager</candidateRole>
+      <verificationType>Identity &amp; Address Check</verificationType>
+      <submittedBy>sarah</submittedBy>
+      <status>Verified</status>
+      <riskLevel>Low</riskLevel>
+      <accessLevel>General</accessLevel>
+      <blockchainHash>0x99fe3021a81dc1290bb345</blockchainHash>
+      <dateInitiated>2026-03-25</dateInitiated>
+      <notes>Aadhaar biometric and postal address coordinates verified.</notes>
+    </record>
+    <record>
+      <id>CHK-9045</id>
+      <candidateName>David Miller</candidateName>
+      <candidateRole>Chief Architect</candidateRole>
+      <verificationType>Executive Integrity &amp; Financial</verificationType>
+      <submittedBy>admin</submittedBy>
+      <status>Verified</status>
+      <riskLevel>Low</riskLevel>
+      <accessLevel>Confidential</accessLevel>
+      <blockchainHash>0x77ba44319c501eab23019f</blockchainHash>
+      <dateInitiated>2026-03-20</dateInitiated>
+      <notes>Directorship search, Credit CIBIL 820, Global watchlist scan clear.</notes>
+    </record>
+    <record>
+      <id>CHK-9046</id>
+      <candidateName>Neha Gupta</candidateName>
+      <candidateRole>QA Automation Lead</candidateRole>
+      <verificationType>Employment Gap Analysis</verificationType>
+      <submittedBy>sarah</submittedBy>
+      <status>Discrepancy Found</status>
+      <riskLevel>High</riskLevel>
+      <accessLevel>Confidential</accessLevel>
+      <blockchainHash>0x33441a9bc99201efac4412</blockchainHash>
+      <dateInitiated>2026-03-22</dateInitiated>
+      <notes>14-month employment date mismatch between resume and EPFO record.</notes>
+    </record>
+    <record>
+      <id>CHK-9047</id>
+      <candidateName>Karthik Raja</candidateName>
+      <candidateRole>Data Engineer</candidateRole>
+      <verificationType>Employment &amp; Degree Check</verificationType>
+      <submittedBy>aswin</submittedBy>
+      <status>In Progress</status>
+      <riskLevel>Low</riskLevel>
+      <accessLevel>General</accessLevel>
+      <blockchainHash>0x66cc8819ee1102baef5102</blockchainHash>
+      <dateInitiated>2026-04-01</dateInitiated>
+      <notes>Routing engine active - 2 of 3 external API checks completed.</notes>
+    </record>
+  </records>
+</database>
